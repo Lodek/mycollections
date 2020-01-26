@@ -1,0 +1,2 @@
+* About
+Miscellaneous Python modules that turned out to be useful
