@@ -3,7 +3,7 @@
 
 """
 from unittest import TestCase, main
-from url import URL
+from mycollections.url import URL
 
 class URLTest(TestCase):
 
@@ -16,7 +16,7 @@ class URLTest(TestCase):
         When I use the / operator on URL
         Then the returned URL should have the updated resource_path
         """
-        self.url.resouce_path = ['usr']
+        self.url.resource_path = ['usr']
         url = self.url / 'bin'
         self.assertEqual(url.resource_path,
                          ['usr', 'bin'])
@@ -33,7 +33,7 @@ class URLTest(TestCase):
 
     def test_truediv_popping_on_empty_path(self):
         """
-        Given URL object iwth resource_path empty
+        Given URL object with resource_path empty
         When I call url / '..'
         Then exception should not be raised
         Then returned object resource path should be empty
@@ -41,6 +41,42 @@ class URLTest(TestCase):
         self.url.resource_path = []
         url = self.url / '..'
         self.assertEqual(url.resource_path, [])
+
+    def test_mul_inserting_domain(self):
+        """
+        Given URL object with domain name
+        When I insert a domain to the domains list
+        Then returned url should have all domains
+        """
+        self.url.full_domain = 'google com'.split()
+        url = self.url * 'books'
+        self.assertEqual(url.full_domain,
+                         'books google com'.split())
+
+    def test_mul_removing_with_domains(self):
+        """
+        Given URL object with domains
+        When I multiply '..' (parent)
+        Then returned object should have one less domain
+        """
+        self.url.full_domain = 'google com'.split()
+        url = self.url * '..'
+        self.assertEqual(url.full_domain,
+                         ['com'])
+
+    def test_mul_removing_without_domains(self):
+        """
+        Given URL with empty domain list
+        When I mutiply '..' on the empty list
+        Then returned object should have no domain
+        Then no exception should be raised
+        """
+        self.url.full_domain = []
+        url = self.url * '..'
+        self.assertEquals(url.full_domain,
+                          [])
+
+
 
 if __name__ == '__main__':
     main()
