@@ -76,6 +76,86 @@ class URLTest(TestCase):
         self.assertEquals(url.full_domain,
                           [])
 
+    def test_url_parsing_no_resource_no_trailing_slash(self):
+        """
+        Given an url without resource path and without a trailing slash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://google.com')
+        self.assertEqual(url.full_domain, ['google', 'com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, [])
+
+
+    def test_url_parsing_no_resource_trailing_slash(self):
+        """
+        Given an url without resource path and a trailing resource dash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://google.com/')
+        self.assertEqual(url.full_domain, ['google', 'com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, [])
+
+    def test_url_parsing_resource_no_trailing_slash(self):
+        """
+        Given an url with a resource path and without a trailing slash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://google.com/yeezy')
+        self.assertEqual(url.full_domain, ['google', 'com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, ['yeezy'])
+
+
+    def test_url_parsing_resource_no_trailing_slash(self):
+        """
+        Given an url with a resource path and without a trailing slash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://google.com/yeezy/')
+        self.assertEqual(url.full_domain, ['google', 'com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, ['yeezy'])
+
+
+    def test_url_parsing_resources_no_trailing_slash(self):
+        """
+        Given an url with a resource path and without a trailing slash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://google.com/yeezy/yeet')
+        self.assertEqual(url.full_domain, ['google', 'com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, ['yeezy', 'yeet'])
+
+    def test_url_parsing_resources_trailing_slash(self):
+        """
+        Given an url with a resource path and with a trailing slash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://google.com/yeezy/yeet/')
+        self.assertEqual(url.full_domain, ['google', 'com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, ['yeezy', 'yeet'])
+
+    def test_url_parsing_domain_and_resources_trailing_slash(self):
+        """
+        Given an url with a resource path and with a trailing slash
+        When I build an Url object
+        Then the url should be parsed correctly
+        """
+        url = Url.from_string('http://com/yeezy/yeet/')
+        self.assertEqual(url.full_domain, ['com'])
+        self.assertEqual(url.scheme, 'http')
+        self.assertEqual(url.resource_path, ['yeezy', 'yeet'])
+
 
 
 if __name__ == '__main__':

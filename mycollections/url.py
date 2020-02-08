@@ -19,6 +19,7 @@ class URL:
         """
 
         """
+        url_matcher = re.compile(r'^(.*)://(.*)')
         url_matcher = re.compile(r'^(.*)://(.*?(?:/)?)((?<=/).*)')
         domain_name_matcher = re.compile(r'^(.*)/')
         self.paths = paths
