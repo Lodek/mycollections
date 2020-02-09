@@ -73,7 +73,7 @@ class URLTest(TestCase):
         """
         self.url.full_domain = []
         url = self.url * '..'
-        self.assertEquals(url.full_domain,
+        self.assertEqual(url.full_domain,
                           [])
 
 
