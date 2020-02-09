@@ -23,16 +23,16 @@ class URL:
         """
 
         """
-        parse_resource_path(url)
-        parse_domain(url)
-        parse_scheme(url)
+        self.parse_resource_path(url)
+        self.parse_domain(url)
+        self.parse_scheme(url)
 
     def parse_handler(f):
         """Decorator to abstract error handling in the parse functions"""
         def parse_wrapper(self, url):
             try:
                 f(self, url)
-            except IndexError:
+            except TypeError:
                 error_msg = f'Invalid url {url}, error parsing {f.__name__}'
                 raise InvalidUrlError(error_msg)
         return parse_wrapper
@@ -47,7 +47,7 @@ class URL:
         are inserted at the beginning.
         """
         #little monster
-        domain_re = re.compile(r'(?<=:\/\/)((\w+)($|((\.\w+)?(?=\/|.)))*)')
+        domain_re = re.compile(r'(?<=:\/\/)((\w+)($|((\.\w+)?(?=\/|.|$)))*)')
         match = domain_re.search(url)
         self.full_domain = match[0].split('.')
 
@@ -55,11 +55,11 @@ class URL:
     def parse_resource_path(self, url):
         resource_path_re = re.compile(r'(?<!:\/\/)(?<=\/)((\w+)(\/\w+(?=\/|$))*)')
         match = resource_path_re.search(url)
-        self.resource_path = match[0].split('/')
+        self.resource_path = match[0].split('/') if match else []
 
     @parse_handler
     def parse_scheme(self, url):
-        scheme_re = re.compile(r'^(\w+):\/\/')
+        scheme_re = re.compile(r'^(\w+)(?=:\/\/)')
         match = scheme_re.search(url)
         self.scheme = match[0]
 
@@ -113,10 +113,11 @@ class URL:
 
 
     @classmethod
-    def oneshot(cls, url, paths):
+    def from_string(cls, url):
         """Return a formatted url from a base url and the desired paths."""
-        builder = cls(url)
-        return builder.get(paths)
+        obj = cls()
+        obj.parse_url(url)
+        return obj
         
 
     def __str__(self):
