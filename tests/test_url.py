@@ -6,7 +6,9 @@ from unittest import TestCase, main
 from mycollections.url import URL
 
 class URLTest(TestCase):
-
+    """
+    Test suite for URL class
+    """
     def setUp(self):
         self.url = URL()
 
@@ -156,6 +158,34 @@ class URLTest(TestCase):
         self.assertEqual(url.scheme, 'http')
         self.assertEqual(url.resource_path, ['yeezy', 'yeet'])
 
+    def test_url_parsing_with_one_query(self):
+        """
+        Given an url with one query parameter
+        When parsed
+        Then url object query should be correct
+        """
+        url = URL.from_string('http://google.com/ok?key1=value1')
+        self.assertEqual(url.query, {'key1':'value1'})
+        
+    def test_url_parsing_with_two_queries(self):
+        """
+        Given an url with two query parameters
+        When parsed
+        Then url object query should be correct
+        """
+        url = URL.from_string('http://google.com/ok?key1=value1&key2=value2')
+        self.assertEqual(url.query, {'key1':'value1', 'key2' : 'value2'})
+
+    def test_url_parsing_with_three_queries(self):
+        """
+        Given an url with three query parameters
+        When parsed
+        Then url object query should be correct
+        """
+
+        url = URL.from_string('http://google.com/ok?key1=value1&key2=value2&key3=value3')
+        self.assertEqual(url.query,
+                         {'key1':'value1', 'key2':'value2', 'key3':'value3'})
 
 
 if __name__ == '__main__':

@@ -17,6 +17,7 @@ class URL:
         self.scheme = ''
         self.full_domain = []
         self.resource_path = []
+        self.query = {}
         self.port = 0
 
     def parse_url(self, url):
@@ -26,6 +27,7 @@ class URL:
         self.parse_resource_path(url)
         self.parse_domain(url)
         self.parse_scheme(url)
+        self.parse_query(url)
 
     def parse_handler(f):
         """Decorator to abstract error handling in the parse functions"""
@@ -37,6 +39,16 @@ class URL:
                 raise InvalidUrlError(error_msg)
         return parse_wrapper
 
+    @parse_handler
+    def parse_query(self, url):
+        """
+        Extract query string from url and store it as a key value pair
+        """
+        query_matcher = re.compile(r'(?<=\?|&)(\w+=\w+)(?=&|$)')
+        matches = query_matcher.findall(url)
+        pairs = [g.split('=') for g in matches]
+        self.query = {key : value for key, value in pairs}
+        
 
     @parse_handler
     def parse_domain(self, url):
@@ -78,8 +90,8 @@ class URL:
                 pass
         else:
             resource_path.append(str(other))
-        url = URL.from_params(scheme=self.scheme, full_domain=self.full_domain,
-                              resource_path=resource_path)
+        url = self._copy()
+        url.resource_path = resource_path
         return url
 
 
@@ -98,17 +110,18 @@ class URL:
                 pass
         else:
             full_domain.insert(0, str(other))
-        url = URL.from_params(scheme=self.scheme, full_domain=full_domain,
-                              resource_path=self.resource_path)
+        url = self._copy()
+        url.full_domain = full_domain
         return url
 
 
     @classmethod
-    def from_params(cls, scheme, full_domain, resource_path):
+    def from_params(cls, scheme, full_domain, resource_path, query):
         url = cls()
         url.scheme = scheme
         url.full_domain = full_domain
         url.resource_path = resource_path
+        url.query = query
         return url
 
 
@@ -121,21 +134,49 @@ class URL:
         
 
     def __str__(self):
+        format_query = lambda query : self.stringfy_dict(query, self.QUERY_ASSIGMENT, self.QUERY_SEPARATOR)
         resource_path = '/'.join(self.resource_path)
         full_domain = '.'.join(self.full_domain)
-        return self.URL_formatter.format(self.scheme, full_domain, resource_path)
+        str = self.URL_formatter.format(self.scheme, full_domain, resource_path)
+        if self.query:
+            str = f'{str}?{format_query(self.query)}'
+        return str
 
     
-    def query(self, query, query_join='?'):
+    def add_query(self, query):
         """Receive dictionary with key-values of an URL query.
-        Return string of the current URL with the query string
+        Return new URL object with queries.
         query_join defines the symbol that will be use to concatenate the url
         with the query string, defaults to ?"""
-        format_query = lambda query : self.stringfy_dict(query, self.QUERY_ASSIGMENT, self.QUERY_SEPARATOR)
-        return self.get_url(paths) + query_join + format_query(query)
+        url = self._copy()
+        old_query = url.query.copy()
+        q = old_query.update(query)
+        url.query = q
+        return url
 
+    def remove_queries(self):
+        url = self._copy()
+        url.query = {}
+        return url
+        
+    def __abs__(self):
+        """Return the current URL object without any queries,
+        same a obj.remove_queries()"""
+        return self.remove_queries
+
+    def __add__(self):
+        pass
+
+    def __sub__(self):
+        pass
+        
 
     @staticmethod
     def stringfy_dict(d, kv_join, separator):
         return separator.join([str(key) + kv_join + str(value) for key, value in d.items()])
 
+
+    def _copy(self):
+        url = URL.from_params(scheme=self.scheme, full_domain=self.full_domain,
+                              resource_path=self.resource_path, query=self.query)
+        return url
