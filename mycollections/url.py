@@ -134,7 +134,7 @@ class URL:
         
 
     def __str__(self):
-        format_query = lambda query : self.stringfy_dict(query, self.QUERY_ASSIGMENT, self.QUERY_SEPARATOR)
+        format_query = lambda query : self.stringfy_dict(query, self.QUERY_ASSIGNMENT, self.QUERY_SEPARATOR)
         resource_path = '/'.join(self.resource_path)
         full_domain = '.'.join(self.full_domain)
         str = self.URL_formatter.format(self.scheme, full_domain, resource_path)
@@ -150,8 +150,8 @@ class URL:
         with the query string, defaults to ?"""
         url = self._copy()
         old_query = url.query.copy()
-        q = old_query.update(query)
-        url.query = q
+        old_query.update(query)
+        url.query = old_query
         return url
 
     def remove_queries(self):
